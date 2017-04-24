@@ -5,81 +5,72 @@ import reducer from '../src/reducer';
 
 describe('reducer', () => {
 
-  it('handles SET_ENTRIES', () => {
-    const initialState = Map();
-    const action = {type: 'SET_ENTRIES', entries: ['Trainspotting']};
-    const nextState = reducer(initialState, action);
+    it('handles SET_ENTRIES', () => {
+        const initialState = Map();
+        const action = {type: 'SET_ENTRIES', entries: ['Trainspotting']};
+        const nextState = reducer(initialState, action);
 
-    expect(nextState).to.equal(fromJS({
-      entries: ['Trainspotting'],
-      initialEntries: ['Trainspotting']
-    }));
-  });
-
-  it('handles NEXT', () => {
-    const initialState = fromJS({
-      entries: ['Trainspotting', '28 Days Later']
+        expect(nextState).to.equal(fromJS({
+            entries: ['Trainspotting']
+        }));
     });
-    const action = {type: 'NEXT'};
-    const nextState = reducer(initialState, action);
 
-    expect(nextState).to.equal(fromJS({
-      vote: {
-        round: 1,
-        pair: ['Trainspotting', '28 Days Later']
-      },
-      entries: []
-    }));
-  });
+    it('handles VOTE', () => {
+        const initialState = fromJS({
+            vote: {
+                pair: ['Trainspotting', 'Sunshine']
+            },
+            entries: []
+        });
+        const action = {type: 'VOTE', entry: 'Trainspotting'};
+        const nextState = reducer(initialState, action);
 
-  it('handles VOTE', () => {
-    const initialState = fromJS({
-      vote: {
-        round: 1,
-        pair: ['Trainspotting', '28 Days Later']
-      },
-      entries: []
+        expect(nextState).to.equal(fromJS({
+            vote: {
+                pair: ['Trainspotting', 'Sunshine'],
+                tally: {Trainspotting: 1}
+            },
+            entries: []
+        }));
     });
-    const action = {type: 'VOTE', entry: 'Trainspotting', clientId: 'voter1'};
-    const nextState = reducer(initialState, action);
 
-    expect(nextState).to.equal(fromJS({
-      vote: {
-        round: 1,
-        pair: ['Trainspotting', '28 Days Later'],
-        tally: {Trainspotting: 1},
-        votes: {
-          voter1: 'Trainspotting'
-        }
-      },
-      entries: []
-    }));
-  });
+    it('handles NEXT', () => {
+        const initialState = fromJS({
+            entries: ['Trainspotting', '28 Days Later']
+        });
+        const action = {type: 'NEXT'};
+        const nextState = reducer(initialState, action);
 
-  it('has an initial state', () => {
-    const action = {type: 'SET_ENTRIES', entries: ['Trainspotting']};
-    const nextState = reducer(undefined, action);
-    expect(nextState).to.equal(fromJS({
-      entries: ['Trainspotting'],
-      initialEntries: ['Trainspotting']
-    }));
-  });
+        expect(nextState).to.equal(fromJS({
+            vote: {
+                pair: ['Trainspotting', '28 Days Later']
+            },
+            entries: []
+        }));
+    });
 
-  it('can be used with reduce', () => {
-    const actions = [
-      {type: 'SET_ENTRIES', entries: ['Trainspotting', '28 Days Later']},
-      {type: 'NEXT'},
-      {type: 'VOTE', entry: 'Trainspotting', clientId: 'voter1'},
-      {type: 'VOTE', entry: '28 Days Later', clientId: 'voter2'},
-      {type: 'VOTE', entry: 'Trainspotting', clientId: 'voter3'},
-      {type: 'NEXT'}
-    ];
-    const finalState = actions.reduce(reducer, Map());
+    it('initializes a meaningful state', () => {
+        const action = {type: 'SET_ENTRIES', entries: ['Trainspotting']};
+        const nextState = reducer(undefined, action);
 
-    expect(finalState).to.equal(fromJS({
-      winner: 'Trainspotting',
-      initialEntries: ['Trainspotting', '28 Days Later']
-    }));
-  });
+        expect(nextState).to.equal(fromJS({
+            entries: ['Trainspotting']
+        }));
+    });
 
+    it('can be used to reduce collection of actions', () => {
+        const actions = [
+            {type: 'SET_ENTRIES', entries: ['Trainspotting', '28 Days Later']},
+            {type: 'NEXT'},
+            {type: 'VOTE', entry: 'Trainspotting'},
+            {type: 'VOTE', entry: '28 Days Later'},
+            {type: 'VOTE', entry: 'Trainspotting'},
+            {type: 'NEXT'}
+        ];
+        const finalState = actions.reduce(reducer, Map());
+
+        expect(finalState).to.equal(fromJS({
+            winner: 'Trainspotting'
+        }));
+    });
 });

@@ -4,8 +4,7 @@ export const INITIAL_STATE = Map();
 
 export function setEntries(state, entries) {
   const list = List(entries);
-  return state.set('entries', list)
-              .set('initialEntries', list);
+  return state.set('entries', list);
 }
 
 function getWinners(vote) {
@@ -18,7 +17,7 @@ function getWinners(vote) {
   else                           return [one, two];
 }
 
-export function next(state, round = state.getIn(['vote', 'round'], 0)) {
+export function next(state) {
   const entries = state.get('entries')
                        .concat(getWinners(state.get('vote')));
   if (entries.size === 1) {
@@ -28,7 +27,6 @@ export function next(state, round = state.getIn(['vote', 'round'], 0)) {
   } else {
     return state.merge({
       vote: Map({
-        round: round + 1,
         pair: entries.take(2)
       }),
       entries: entries.skip(2)
@@ -46,29 +44,10 @@ export function restart(state) {
   );
 }
 
-function removePreviousVote(voteState, voter) {
-  const previousVote = voteState.getIn(['votes', voter]);
-  if (previousVote) {
-    return voteState.updateIn(['tally', previousVote], t => t - 1)
-                    .removeIn(['votes', voter]);
-  } else {
-    return voteState;
-  }
-}
-
-function addVote(voteState, entry, voter) {
-  if (voteState.get('pair').includes(entry)) {
-    return voteState.updateIn(['tally', entry], 0, t => t + 1)
-                    .setIn(['votes', voter], entry);
-  } else {
-    return voteState;
-  }
-}
-
-export function vote(voteState, entry, voter) {
-  return addVote(
-    removePreviousVote(voteState, voter),
-    entry,
-    voter
-  );
+export function vote(voteState, entry) {
+    return state.updateIn(
+        [tally', entry],
+        0,
+        tally => tally + 1
+    );
 }
