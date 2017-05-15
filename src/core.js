@@ -45,8 +45,8 @@ export function restart(state) {
 }
 
 export function vote(voteState, entry) {
-    return state.updateIn(
-        [tally', entry],
+    return voteState.updateIn(
+        ['tally', entry],
         0,
         tally => tally + 1
     );
