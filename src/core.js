@@ -25,12 +25,15 @@ export function next(state) {
                 .remove('entries')
                 .set('winner', entries.first());
   } else {
-    return state.merge({
+    var ok =  state.merge({
       vote: Map({
         pair: entries.take(2)
       }),
       entries: entries.skip(2)
     });
+
+    console.log(ok)
+    return ok
   }
 }
 
@@ -45,7 +48,7 @@ export function restart(state) {
 }
 
 export function vote(voteState, entry) {
-    return state.updateIn(
+    return voteState.updateIn(
         ['tally', entry],
         0,
         tally => tally + 1
